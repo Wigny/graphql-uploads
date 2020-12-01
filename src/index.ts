@@ -2,19 +2,43 @@ import { ApolloServer } from "apollo-server";
 import gql from "graphql-tag";
 
 const typeDefs = gql`
+  type File {
+    filename: String!
+    mimetype: String!
+    encoding: String!
+  }
+
   type Query {
-    hello:  String
+    uploads: [File]
+  }
+
+  type Mutation {
+    singleUpload(file: Upload!): File!
   }
 `;
 
 const resolvers = {
+  Mutation: {
+    singleUpload: (parent: any, args: { file: Promise<File>; }) => {
+      return args.file.then((file: File) => {
+        // Contents of Upload scalar: https://github.com/jaydenseric/graphql-upload#class-graphqlupload
+        // file.createReadStream() is a readable node stream that contains the contents of the uploaded file
+        // node stream api: https://nodejs.org/api/stream.html
+        return file;
+      });
+    },
+  },
   Query: {
-    hello: () => "world",
+    // tslint:disable-next-line:no-empty
+    uploads: (parent: any, args: any) => { },
   },
 };
 
-const schema = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+  resolvers,
+  typeDefs,
+});
 
-schema.listen({ port: process.env.PORT || 8000 }).then(({ url }) => {
-  console.log(`schema ready at ${url}`);
+server.listen({ port: process.env.PORT || 8000 }).then(({ url }) => {
+  console.log(`Server ready at ${url}`);
 });
