@@ -49,32 +49,20 @@ const resolvers = {
   },
 };
 
-const upload = ({ filename, mimetype, createReadStream }: FileUpload) => {
+const upload = async ({ filename, mimetype, createReadStream }: FileUpload) => {
   const stream = createReadStream();
   const file = uuid() + path.extname(filename);
 
-  return container
+  await container
     .getBlobClient(file)
     .getBlockBlobClient()
-    .uploadStream(stream, 4 * 1024 * 1024, 5, {
-      onProgress: ({ loadedBytes }) => console.log({ loadedBytes })
-    })
-    .then(res => {
-      console.log({ res });
+    .uploadStream(stream);
 
-      return {
-        filename: file,
-        mimetype,
-        url: `https://${ACCOUNT_NAME}.blob.core.windows.net/files/${file}`,
-      }
-    })
-    .catch(e => {
-      return {
-        filename: file,
-        mimetype,
-        url: e,
-      }
-    });
+  return {
+    filename: file,
+    mimetype,
+    url: `https://${ACCOUNT_NAME}.blob.core.windows.net/files/${file}`,
+  }
 }
 
 const server = new ApolloServer({
