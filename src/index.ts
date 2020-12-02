@@ -68,7 +68,13 @@ const upload = ({ filename, mimetype, createReadStream }: FileUpload) => {
         url: `https://${ACCOUNT_NAME}.blob.core.windows.net/files/${file}`,
       }
     })
-    .catch(console.error);
+    .catch(e => {
+      return {
+        filename: file,
+        mimetype,
+        url: e,
+      }
+    });
 }
 
 const server = new ApolloServer({
