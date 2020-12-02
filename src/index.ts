@@ -8,6 +8,10 @@ dotenv.config();
 
 const { PORT, CONNECT_STR, CONTAINER_NAME, ACCOUNT_NAME } = process.env;
 
+const container = BlobServiceClient
+  .fromConnectionString(CONNECT_STR as string)
+  .getContainerClient(CONTAINER_NAME as string);
+
 const typeDefs = gql`
   type File {
     filename: String!
@@ -30,15 +34,13 @@ const resolvers = {
   },
   Mutation: {
     upload: async (_parent: any, args: any) => {
-      console.log({ args });
-      console.log({ PORT, CONNECT_STR, CONTAINER_NAME, ACCOUNT_NAME });
-
-
       const results: any[] = [];
 
       // tslint:disable-next-line:prefer-for-of
       for await (const file of args.files) {
         const result = await upload(file);
+        console.log({ result });
+
 
         results.push(result)
       }
@@ -49,17 +51,19 @@ const resolvers = {
 };
 
 const upload = async ({ filename, mimetype, createReadStream }: any) => {
-  console.log({ filename, mimetype, createReadStream });
+  console.log({ container });
 
   const stream = createReadStream();
   const file = uuid() + path.extname(filename);
 
-  await BlobServiceClient
-    .fromConnectionString(CONNECT_STR as string)
-    .getContainerClient(CONTAINER_NAME as string)
+  console.log({ stream });
+
+  const res = await container
     .getBlobClient(file)
     .getBlockBlobClient()
     .uploadStream(stream);
+
+  console.log({ res });
 
   return {
     filename: file,
