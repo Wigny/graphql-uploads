@@ -3,10 +3,15 @@ import { ApolloServer, gql } from 'apollo-server';
 import { v4 as uuid } from 'uuid';
 import path from 'path';
 import dotenv from 'dotenv';
+import { FileUpload } from 'graphql-upload';
 
 dotenv.config();
 
 const { PORT, CONNECT_STR, CONTAINER_NAME, ACCOUNT_NAME } = process.env;
+
+const container = BlobServiceClient
+  .fromConnectionString(CONNECT_STR as string)
+  .getContainerClient(CONTAINER_NAME as string);
 
 const typeDefs = gql`
   type File {
@@ -29,7 +34,7 @@ const resolvers = {
     hello: () => "world",
   },
   Mutation: {
-    upload: async (_parent: any, args: any) => {
+    upload: async (_parent: any, args: { files: FileUpload[] }) => {
       const results: any[] = [];
 
       // tslint:disable-next-line:prefer-for-of
@@ -44,13 +49,11 @@ const resolvers = {
   },
 };
 
-const upload = async ({ filename, mimetype, createReadStream }: any) => {
+const upload = async ({ filename, mimetype, createReadStream }: FileUpload) => {
   const stream = createReadStream();
   const file = uuid() + path.extname(filename);
 
-  await BlobServiceClient
-    .fromConnectionString(CONNECT_STR as string)
-    .getContainerClient(CONTAINER_NAME as string)
+  await container
     .getBlobClient(file)
     .getBlockBlobClient()
     .uploadStream(stream);
