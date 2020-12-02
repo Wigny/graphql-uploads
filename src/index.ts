@@ -68,6 +68,7 @@ const upload = async ({ filename, mimetype, createReadStream }: FileUpload) => {
 const server = new ApolloServer({
   resolvers,
   typeDefs,
+  introspection: true
 });
 
 server.listen({ port: PORT }).then(({ url }) => {
