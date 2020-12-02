@@ -16,7 +16,7 @@ const typeDefs = gql`
   }
 
   type Query {
-    running: Boolean
+    hello:  String
   }
 
   type Mutation {
@@ -26,7 +26,7 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
-    running: () => true,
+    hello: () => "world",
   },
   Mutation: {
     upload: async (_parent: any, args: any) => {
