@@ -53,7 +53,7 @@ const upload = ({ filename, mimetype, createReadStream }: FileUpload) => {
   const stream = createReadStream();
   const file = uuid() + path.extname(filename);
 
-  container
+  return container
     .getBlobClient(file)
     .getBlockBlobClient()
     .uploadStream(stream, 4 * 1024 * 1024, 5)
