@@ -3,6 +3,7 @@ import { ApolloServer, gql } from 'apollo-server';
 import { v4 as uuid } from 'uuid';
 import path from 'path';
 import dotenv from 'dotenv';
+import { FileUpload } from 'graphql-upload';
 
 dotenv.config();
 
@@ -41,7 +42,6 @@ const resolvers = {
         const result = await upload(file);
         console.log({ result });
 
-
         results.push(result)
       }
 
@@ -50,18 +50,17 @@ const resolvers = {
   },
 };
 
-const upload = async ({ filename, mimetype, createReadStream }: any) => {
-  console.log({ container });
-
+const upload = async ({ filename, mimetype, createReadStream }: FileUpload) => {
   const stream = createReadStream();
   const file = uuid() + path.extname(filename);
 
-  console.log({ stream });
-
-  const res = await container
+  const blockBlobClient = container
     .getBlobClient(file)
-    .getBlockBlobClient()
-    .uploadStream(stream);
+    .getBlockBlobClient();
+
+  console.log({ blockBlobClient });
+
+  const res = await blockBlobClient.uploadStream(stream, 16384, 20);
 
   console.log({ res });
 
