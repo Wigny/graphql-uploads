@@ -10,7 +10,7 @@
     "postinstall": "yarn tsc"
   },
   "engines": {
-    "node": ">=8.6"
+    "node": "12.x"
   },
   "devDependencies": {
     "@types/uuid": "^8.3.0",
