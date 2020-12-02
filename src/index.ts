@@ -30,6 +30,10 @@ const resolvers = {
   },
   Mutation: {
     upload: async (_parent: any, args: any) => {
+      console.log({ args });
+      console.log({ PORT, CONNECT_STR, CONTAINER_NAME, ACCOUNT_NAME });
+
+
       const results: any[] = [];
 
       // tslint:disable-next-line:prefer-for-of
@@ -45,6 +49,8 @@ const resolvers = {
 };
 
 const upload = async ({ filename, mimetype, createReadStream }: any) => {
+  console.log({ filename, mimetype, createReadStream });
+
   const stream = createReadStream();
   const file = uuid() + path.extname(filename);
 
