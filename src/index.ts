@@ -34,13 +34,12 @@ const resolvers = {
     running: () => true,
   },
   Mutation: {
-    upload: async (_parent: any, args: any) => {
+    upload: async (_parent: any, args: { files: FileUpload[] }) => {
       const results: any[] = [];
 
       // tslint:disable-next-line:prefer-for-of
       for await (const file of args.files) {
         const result = await upload(file);
-        console.log({ result });
 
         results.push(result)
       }
@@ -50,25 +49,24 @@ const resolvers = {
   },
 };
 
-const upload = async ({ filename, mimetype, createReadStream }: FileUpload) => {
+const upload = ({ filename, mimetype, createReadStream }: FileUpload) => {
   const stream = createReadStream();
   const file = uuid() + path.extname(filename);
 
-  const blockBlobClient = container
+  container
     .getBlobClient(file)
-    .getBlockBlobClient();
+    .getBlockBlobClient()
+    .uploadStream(stream, 4 * 1024 * 1024, 5)
+    .then(res => {
+      console.log(res)
 
-  console.log({ blockBlobClient });
-
-  const res = await blockBlobClient.uploadStream(stream, 16384, 20);
-
-  console.log({ res });
-
-  return {
-    filename: file,
-    mimetype,
-    url: `https://${ACCOUNT_NAME}.blob.core.windows.net/files/${file}`,
-  }
+      return {
+        filename: file,
+        mimetype,
+        url: `https://${ACCOUNT_NAME}.blob.core.windows.net/files/${file}`,
+      }
+    })
+    .catch(console.error);
 }
 
 const server = new ApolloServer({
