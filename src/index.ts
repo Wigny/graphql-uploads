@@ -12,7 +12,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    singleUpload(file: Upload!): File!
+    upload(files: [Upload!]!): [File!]!
   }
 `;
 
@@ -21,10 +21,10 @@ const resolvers = {
     running: () => true,
   },
   Mutation: {
-    singleUpload: async (parent: any, { file }: any) => {
-      const { filename, mimetype, encoding } = await file;
+    upload: async (parent: any, args: any) => {
+      const files = await args.files;
 
-      return { filename, mimetype, encoding, url: '' }
+      return files;
     },
   },
 };
