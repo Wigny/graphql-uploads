@@ -56,9 +56,11 @@ const upload = ({ filename, mimetype, createReadStream }: FileUpload) => {
   return container
     .getBlobClient(file)
     .getBlockBlobClient()
-    .uploadStream(stream, 4 * 1024 * 1024, 5)
+    .uploadStream(stream, 4 * 1024 * 1024, 5, {
+      onProgress: ({ loadedBytes }) => console.log({ loadedBytes })
+    })
     .then(res => {
-      console.log(res)
+      console.log({ res });
 
       return {
         filename: file,
